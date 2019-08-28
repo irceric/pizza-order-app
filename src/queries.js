@@ -6,9 +6,6 @@ export const GET_ALL_PIZAS = gql`
       maxToppings
       basePrice
       toppings {
-        pizzaSize {
-          maxToppings
-        }
         topping {
           name
           price
@@ -26,9 +23,6 @@ export const GET_PIZZA_BY_NAME = gql`
       maxToppings
       basePrice
       toppings {
-        pizzaSize {
-          maxToppings
-        }
         topping {
           name
           price

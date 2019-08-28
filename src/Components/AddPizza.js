@@ -1,25 +1,121 @@
-import { Button, Grid, Paper, TextField } from "@material-ui/core";
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
+import {
+  Button,
+  Grid,
+  Paper,
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  List,
+  ListItemText,
+  ListItem,
+  ListItemIcon,
+  FormControlLabel,
+  Checkbox,
+  Divider,
+} from "@material-ui/core";
 
-const AddPizza = memo(props => (
-  <Paper style={{ margin: 16, padding: 16 }}>
-    <Grid container>
-      <Grid xs={10} md={11} item style={{ paddingRight: 16 }}>
-        <TextField
-          placeholder="Add Todo here"
-          value={props.inputValue}
-          onChange={props.onInputChange}
-          onKeyPress={props.onInputKeyPress}
-          fullWidth
-        />
+const AddPizza = memo(props => {
+  const {
+    pizzaSize: { name, basePrice, toppings, maxToppings },
+  } = props;
+
+  const getSelectedTopping = toppings => {
+    let checked = [];
+    toppings.forEach((topping, index) => {
+      if (topping.defaultSelected) {
+        checked.push(index);
+      }
+    });
+    return checked;
+  };
+
+  const initialSubtotal = pizzaSize =>
+    pizzaSize.toppings.reduce(
+      (subTotal, topping) => subTotal + (topping.defaultSelected ? topping.topping.price * 1.0 : 0),
+      pizzaSize.basePrice,
+    );
+
+  const [checked, setChecked] = useState(getSelectedTopping(toppings));
+  const [subtotal, setSubtotal] = useState(initialSubtotal(props.pizzaSize));
+
+  const handleToggle = index => () => {
+    const currentIndex = checked.indexOf(index);
+    const newChecked = [...checked];
+    if (currentIndex === -1) {
+      newChecked.push(index);
+      setSubtotal((subtotal * 1.0 + toppings[index].topping.price * 1.0).toFixed(2));
+    } else {
+      newChecked.splice(currentIndex, 1);
+      setSubtotal((subtotal * 1.0 - toppings[index].topping.price * 1.0).toFixed(2));
+    }
+    setChecked(newChecked);
+  };
+
+  return (
+    <Paper style={{ margin: 16, padding: 16 }}>
+      <Grid xs={12} md={12} item style={{ paddingRight: 16 }}>
+        <Card style={{ flex: 1, margin: 5 }} elevation={0}>
+          <CardContent>
+            <Typography variant="h4">Size: {name}</Typography>
+            <Typography variant="body1">Base Price ${basePrice}</Typography>
+            <Divider />
+            <Typography variant="h5">Max Toppings: {maxToppings || "Unlimited"}</Typography>
+            <Typography variant="h6">Please pick up toppings</Typography>
+            <List dense component="div" role="list">
+              {toppings.map((topping, index) => {
+                const labelId = `transfer-list-item-${topping.topping.name}-label`;
+                return (
+                  <ListItem
+                    key={topping.topping.name}
+                    role="listitem"
+                    button
+                    onClick={handleToggle(index)}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={checked.indexOf(index) !== -1}
+                          disabled={
+                            checked.indexOf(index) === -1 &&
+                            maxToppings > 0 &&
+                            checked.length === maxToppings
+                          }
+                          tabIndex={-1}
+                          inputProps={{ "aria-labelledby": labelId }}
+                        />
+                      }
+                      label={`${topping.topping.name}: $${topping.topping.price}`}
+                    />
+                  </ListItem>
+                );
+              })}
+              <ListItem />
+            </List>
+            <Divider />
+            <Typography variant="h5">Sub Total: ${subtotal}</Typography>
+          </CardContent>
+          <CardActions style={{ justifyContent: "flex-end" }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              style={{ textTransform: "none" }}
+              onClick={() =>
+                props.onButtonClick({
+                  pizzaSize: props.pizzaSize,
+                  checked,
+                  subtotal,
+                })
+              }
+            >
+              Add to Cart
+            </Button>
+          </CardActions>
+        </Card>
       </Grid>
-      <Grid xs={2} md={1} item>
-        <Button fullWidth color="primary" variant="raised" onClick={props.onButtonClick}>
-          Add
-        </Button>
-      </Grid>
-    </Grid>
-  </Paper>
-));
+    </Paper>
+  );
+});
 
 export default AddPizza;

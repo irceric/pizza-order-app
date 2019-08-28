@@ -4,8 +4,11 @@ import Layout from "./Components/Layout";
 import PizzaList from "./Components/PizzaList";
 import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
-import { useInputValue, useTodos } from "./Components/Hooks";
-
+import { useInputValue, useOrders } from "./Components/Hooks";
+import { Query, Mutation } from "react-apollo";
+import { GET_ALL_PIZAS, GET_PIZZA_BY_NAME } from "./queries";
+import gql from "graphql-tag";
+import { Grid } from "@material-ui/core";
 import "./App.css";
 
 const client = new ApolloClient({
@@ -16,26 +19,42 @@ const client = new ApolloClient({
 
 const App = memo(props => {
   const { inputValue, changeInput, clearInput, keyInput } = useInputValue();
-  const { todos, addTodo, checkTodo, removeTodo } = useTodos();
-
-  const clearInputAndAddTodo = _ => {
+  const { orders, addOrder, checkOrder, removeOrder } = useOrders();
+  const clearInputAndAddOrder = data => {
+    return;
     clearInput();
-    addTodo(inputValue);
+    addOrder(data);
   };
 
   return (
     <ApolloProvider client={client}>
       <Layout>
-        <AddPizza
-          inputValue={inputValue}
-          onInputChange={changeInput}
-          onButtonClick={clearInputAndAddTodo}
-          onInputKeyPress={event => keyInput(event, clearInputAndAddTodo)}
-        />
+        <Query query={GET_ALL_PIZAS}>
+          {({ loading, error, data }) => {
+            if (loading) return <p>Loading...</p>;
+            if (error) return <p>Error fetching pizza menu :(</p>;
+            return (
+              <Grid container>
+                {data.pizzaSizes.map(pizzaSize => (
+                  <Grid item xs={12} md={4} key={pizzaSize.name}>
+                    <AddPizza
+                      pizzaSize={pizzaSize}
+                      inputValue={inputValue}
+                      onInputChange={changeInput}
+                      onButtonClick={clearInputAndAddOrder}
+                      onInputKeyPress={event => keyInput(event, clearInputAndAddOrder)}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            );
+          }}
+        </Query>
+
         <PizzaList
-          items={todos}
-          onItemCheck={idx => checkTodo(idx)}
-          onItemRemove={idx => removeTodo(idx)}
+          items={orders}
+          onItemCheck={idx => checkOrder(idx)}
+          onItemRemove={idx => removeOrder(idx)}
         />
       </Layout>
     </ApolloProvider>
