@@ -33,7 +33,7 @@ const Pizza = memo(props => {
           </React.Fragment>
         }
       />
-      <ListItemText className={{}} primary={`$${subtotal}`} />
+      <ListItemText style={{ paddingRight: "50px", textAlign: "right" }} primary={`$${subtotal}`} />
       <ListItemSecondaryAction>
         <IconButton aria-label="Delete Pizza" onClick={props.onButtonClick}>
           <Delete />

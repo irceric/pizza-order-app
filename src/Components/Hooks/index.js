@@ -1,4 +1,3 @@
-import { useInputValue } from "./form";
-import { useOrders } from "./pizza";
+import { useOrders } from "./orders";
 
-export { useInputValue, useOrders };
+export { useOrders };

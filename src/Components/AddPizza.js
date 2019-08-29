@@ -8,9 +8,7 @@ import {
   CardActions,
   Typography,
   List,
-  ListItemText,
   ListItem,
-  ListItemIcon,
   FormControlLabel,
   Checkbox,
   Divider,
@@ -41,6 +39,7 @@ const AddPizza = memo(props => {
   const [subtotal, setSubtotal] = useState(initialSubtotal(props.pizzaSize));
 
   const handleToggle = index => () => {
+    if (isDisabled(index)) return;
     const currentIndex = checked.indexOf(index);
     const newChecked = [...checked];
     if (currentIndex === -1) {
@@ -51,6 +50,14 @@ const AddPizza = memo(props => {
       setSubtotal((subtotal * 1.0 - toppings[index].topping.price * 1.0).toFixed(2));
     }
     setChecked(newChecked);
+  };
+
+  const isDisabled = index =>
+    checked.indexOf(index) === -1 && maxToppings > 0 && checked.length === maxToppings;
+
+  const resetPizza = () => {
+    setChecked(getSelectedTopping(toppings));
+    setSubtotal(initialSubtotal(props.pizzaSize));
   };
 
   return (
@@ -65,7 +72,6 @@ const AddPizza = memo(props => {
             <Typography variant="h6">Please pick up toppings</Typography>
             <List dense component="div" role="list">
               {toppings.map((topping, index) => {
-                const labelId = `transfer-list-item-${topping.topping.name}-label`;
                 return (
                   <ListItem
                     key={topping.topping.name}
@@ -77,13 +83,7 @@ const AddPizza = memo(props => {
                       control={
                         <Checkbox
                           checked={checked.indexOf(index) !== -1}
-                          disabled={
-                            checked.indexOf(index) === -1 &&
-                            maxToppings > 0 &&
-                            checked.length === maxToppings
-                          }
-                          tabIndex={-1}
-                          inputProps={{ "aria-labelledby": labelId }}
+                          disabled={isDisabled(index)}
                         />
                       }
                       label={`${topping.topping.name}: $${topping.topping.price}`}
@@ -101,8 +101,16 @@ const AddPizza = memo(props => {
               variant="outlined"
               color="primary"
               style={{ textTransform: "none" }}
+              onClick={() => resetPizza()}
+            >
+              Reset Default
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              style={{ textTransform: "none" }}
               onClick={() =>
-                props.onButtonClick({
+                props.onAddToCart({
                   pizzaSize: props.pizzaSize,
                   checked,
                   subtotal,

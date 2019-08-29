@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo } from "react";
 import { List, Typography, CardContent, Card, CardActions } from "@material-ui/core";
 import Pizza from "./Pizza";
 
@@ -7,6 +7,7 @@ const PizzaList = memo(props => {
     props.orders && props.orders.length > 0
       ? props.orders.reduce((total, order) => total + order.subtotal * 1.0, 0).toFixed(2)
       : 0;
+
   return (
     <Card elevation={0}>
       <CardContent style={{ padding: 10 }}>
