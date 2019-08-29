@@ -1,44 +1,35 @@
-// import React from "react";
-// import { Query } from "react-apollo";
-// import gql from "graphql-tag";
-// import { GET_ALL_PIZAS } from "../queries";
-// const PizzaList = () => (
-//   <Query query={GET_ALL_PIZAS}>
-//     {({ loading, error, data }) => {
-//       if (loading) return <p>Loading...</p>;
-//       if (error) return <p>Error :(</p>;
-//       return data.pizzaSizes.map(({ name, maxToppings, basePrice }, index) => (
-//         <div key={index}>
-//           <p>{`${name} at ${basePrice} maxToppigns: ${maxToppings}`}</p>
-//         </div>
-//       ));
-//     }}
-//   </Query>
-// );
-// export default PizzaList;
-
-import { List, Paper } from "@material-ui/core";
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
+import { List, Typography, CardContent, Card, CardActions } from "@material-ui/core";
 import Pizza from "./Pizza";
 
-const PizzaList = memo(props => (
-  <>
-    {props.items.length > 0 && (
-      <Paper style={{ margin: 16 }}>
-        <List style={{ overflow: "scroll" }}>
-          {props.items.map((todo, index) => (
+const PizzaList = memo(props => {
+  const totalAmount =
+    props.orders && props.orders.length > 0
+      ? props.orders.reduce((total, order) => total + order.subtotal * 1.0, 0).toFixed(2)
+      : 0;
+  return (
+    <Card elevation={0}>
+      <CardContent style={{ padding: 10 }}>
+        <Typography variant="h3">Your Cart</Typography>
+        <List dense component="div" role="list">
+          {props.orders.map((order, index) => (
             <Pizza
-              {...todo}
+              {...order}
               key={`TodoItem.${index}`}
-              divider={index !== props.items.length - 1}
+              divider={index !== props.orders.length - 1}
               onButtonClick={() => props.onItemRemove(index)}
               onCheckBoxToggle={() => props.onItemCheck(index)}
             />
           ))}
         </List>
-      </Paper>
-    )}
-  </>
-));
+      </CardContent>
+      <CardActions style={{ justifyContent: "flex-end" }}>
+        <Typography variant="title" style={{ marginRight: 10 }}>
+          Total: ${totalAmount}
+        </Typography>
+      </CardActions>
+    </Card>
+  );
+});
 
 export default PizzaList;

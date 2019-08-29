@@ -21,9 +21,8 @@ const App = memo(props => {
   const { inputValue, changeInput, clearInput, keyInput } = useInputValue();
   const { orders, addOrder, checkOrder, removeOrder } = useOrders();
   const clearInputAndAddOrder = data => {
-    return;
-    clearInput();
     addOrder(data);
+    clearInput();
   };
 
   return (
@@ -52,7 +51,7 @@ const App = memo(props => {
         </Query>
 
         <PizzaList
-          items={orders}
+          orders={orders}
           onItemCheck={idx => checkOrder(idx)}
           onItemRemove={idx => removeOrder(idx)}
         />
